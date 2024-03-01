@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Example : MonoBehaviour
+public class Exampl : MonoBehaviour
 {
     Rigidbody m_Rigidbody;
     public float m_Thrust = 20f;
