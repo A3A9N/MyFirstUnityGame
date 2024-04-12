@@ -7,6 +7,7 @@ public class MoveRun : MonoBehaviour
     private CharacterController controller;
     private Vector3 direction;
     public float forwardSpeed;
+    public float maxSpeed;
 
     private int desiredLane = 1;
     public float laneDistance = 4;
@@ -21,6 +22,10 @@ public class MoveRun : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
+        if(forwardSpeed < maxSpeed)
+        forwardSpeed += 0.1f * Time.deltaTime;
+
         direction.z = forwardSpeed;
 
         direction.y += Gravity*Time.deltaTime;
@@ -55,14 +60,36 @@ public class MoveRun : MonoBehaviour
             targetPosition += Vector3.right * laneDistance;
         }
 
-        transform.position = targetPosition;
+        //transform.position = targetPosition;
+
+        if (transform.position == targetPosition)
+            return;
+        Vector3 diff = targetPosition - transform.position;
+        Vector3 moveDir = diff.normalized * 25 * Time.deltaTime;
+        if (moveDir.sqrMagnitude < diff.sqrMagnitude)
+            controller.Move(moveDir);
+        else
+            controller.Move(diff);
+
+        
     }
     private void FixedUpdate()
     {
+        if (!PlayerManager.isGameStarted)
+            return;
         controller.Move(direction * Time.fixedDeltaTime);
     }
     private void Jump()
     {
         direction.y = jumpForce;
+    }
+
+    private void OnControllerColliderHit (ControllerColliderHit hit)
+    {
+        if (hit.transform.tag == "Obstacles")
+        {
+            PlayerManager.gameOver = true;
+            FindObjectOfType<AudioManager>().PlaySound("GameOver");
+        }
     }
 }
